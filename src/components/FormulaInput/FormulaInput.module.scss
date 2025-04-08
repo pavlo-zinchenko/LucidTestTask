@@ -1,0 +1,43 @@
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+  padding: 8px;
+  border-radius: 6px;
+  border: 2px solid #904eeb;
+  background-color: #f9f9f9;
+}
+
+.inputWrapper:focus-within {
+  border-color: #6200ea;
+}
+
+.tokenContainer {
+  display: flex;
+  align-items: center;
+  background-color: #8bd0f0;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.tag {
+  font-size: 16px;
+  font-weight: bold;
+  padding-right: 4px;
+}
+
+.token {
+  font-size: 16px;
+  color: #6200ea;
+}
+
+.input {
+  border: none;
+  padding: 8px;
+  font-size: 16px;
+  outline: none;
+  background-color: transparent;
+  flex-grow: 1;
+}

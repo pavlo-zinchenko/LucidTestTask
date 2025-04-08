@@ -1,0 +1,27 @@
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 300px;
+  background-color: white;
+  z-index: 100;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+}
+
+.item {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+.category {
+  color: gray;
+  font-size: 12px;
+}
