@@ -1,3 +1,36 @@
+.tokenWrapper {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.token {
+  font-size: 16px;
+  padding: 4px 8px;
+  background-color: #9f65f1;
+  border-radius: 8px;
+}
+
+.circle {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  background-color: #9f65f1;
+  color: white;
+  border-radius: 50%;
+  font-size: 16px;
+  margin-right: 8px;
+  text-align: center;
+}
+
+.number {
+  font-size: 16px;
+  color: #333;
+  margin-right: 8px;
+}
+
 .inputWrapper {
   display: flex;
   align-items: center;
@@ -12,25 +45,6 @@
 
 .inputWrapper:focus-within {
   border-color: #6200ea;
-}
-
-.tokenContainer {
-  display: flex;
-  align-items: center;
-  background-color: #8bd0f0;
-  padding: 4px 8px;
-  border-radius: 8px;
-}
-
-.tag {
-  font-size: 16px;
-  font-weight: bold;
-  padding-right: 4px;
-}
-
-.token {
-  font-size: 16px;
-  color: #6200ea;
 }
 
 .input {

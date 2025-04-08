@@ -6,7 +6,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import styles from "./FormulaInput.module.scss";
 import { useFormulaStore } from "@state/useFormulaStore";
 import { AutocompleteList } from "@components/AutocompleteList";
@@ -25,7 +26,6 @@ export const FormulaInput: FC<FormulaInputProps> = ({ onCalculated }) => {
   const [inputValue, setInputValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [validTags, setValidTags] = useState<string[]>([]);
 
@@ -63,45 +63,43 @@ export const FormulaInput: FC<FormulaInputProps> = ({ onCalculated }) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    setTimeout(() => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
 
-        if (inputValue.trim()) {
-          if (OPERATORS.includes(inputValue.trim())) {
-            addToken({
-              id: crypto.randomUUID(),
-              name: inputValue.trim(),
-              type: "operator",
-            });
-          } else if (!isNaN(Number(inputValue.trim()))) {
-            addToken({
-              id: crypto.randomUUID(),
-              name: inputValue.trim(),
-              type: "number",
-            });
-          } else if (validTags.includes(inputValue.trim())) {
-            addToken({
-              id: crypto.randomUUID(),
-              name: inputValue.trim(),
-              type: "tag",
-            });
-          }
-          setInputValue("");
+      if (inputValue.trim()) {
+        if (OPERATORS.includes(inputValue.trim())) {
+          addToken({
+            id: crypto.randomUUID(),
+            name: inputValue.trim(),
+            type: "operator",
+          });
+        } else if (!isNaN(Number(inputValue.trim()))) {
+          addToken({
+            id: crypto.randomUUID(),
+            name: inputValue.trim(),
+            type: "number",
+          });
+        } else if (validTags.includes(inputValue.trim())) {
+          addToken({
+            id: crypto.randomUUID(),
+            name: inputValue.trim(),
+            type: "tag",
+          });
         }
+        setInputValue("");
       }
+    }
 
-      if (e.key === "Backspace") {
-        e.preventDefault();
+    if (e.key === "Backspace") {
+      e.preventDefault();
 
-        if (inputValue) {
-          setInputValue(inputValue.slice(0, -1));
-        } else if (tokens.length > 0) {
-          const lastToken = tokens[tokens.length - 1];
-          removeToken(lastToken.id);
-        }
+      if (inputValue) {
+        setInputValue(inputValue.slice(0, -1));
+      } else if (tokens.length > 0) {
+        const lastToken = tokens[tokens.length - 1];
+        removeToken(lastToken.id);
       }
-    }, 100);
+    }
   };
 
   const handleAutocompleteSelect = (item: Suggestion) => {
@@ -138,29 +136,38 @@ export const FormulaInput: FC<FormulaInputProps> = ({ onCalculated }) => {
     <>
       <Box className={styles.inputWrapper}>
         =
-        {tokens.map((token) =>
-          token.type === "tag" ? (
-            <Box
-              key={token.id}
-              className={styles.token}
-              onClick={(e) => handleTagClick(e)}
-            >
-              <span>{token.name}</span>
-              <TagDropdown
-                anchorEl={anchorEl}
-                open={dropdownOpen}
-                onClose={() => setDropdownOpen(false)}
-                onSelect={handleTagSelect}
-                showModal={false}
-                setShowModal={() => {}}
-              />
-            </Box>
-          ) : (
-            <Box key={token.id} className={styles.token}>
-              {token.name}
-            </Box>
-          )
-        )}
+        {tokens.map((token) => (
+          <Box key={token.id} className={styles.tokenWrapper}>
+            {token.type === "tag" && ( // Only show dropdown for tags
+              <Box className={styles.token} onClick={(e) => handleTagClick(e)}>
+                <span>{token.name}</span>
+                <IconButton
+                  size="small"
+                  onClick={(e) => handleTagClick(e)}
+                  sx={{ marginLeft: "8px" }}
+                >
+                  <ArrowDropDownIcon fontSize="small" />
+                </IconButton>
+                <TagDropdown
+                  anchorEl={anchorEl}
+                  open={dropdownOpen}
+                  onClose={() => setDropdownOpen(false)}
+                  onSelect={handleTagSelect}
+                  showModal={false}
+                  setShowModal={() => {}}
+                />
+              </Box>
+            )}
+
+            {token.type === "operator" && (
+              <Box className={styles.circle}>{token.name}</Box>
+            )}
+
+            {token.type === "number" && (
+              <Box className={styles.circle}>{token.name}</Box>
+            )}
+          </Box>
+        ))}
         <input
           ref={inputRef}
           className={styles.input}

@@ -1,4 +1,4 @@
-import { FC, useRef, useEffect } from "react";
+import { FC, useEffect, useRef } from "react";
 import {
   Box,
   Paper,
@@ -47,8 +47,8 @@ export const TagDropdown: FC<TagDropdownProps> = ({
   }, [open]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && open) {
+    const handleKeyDown: EventListener = (e) => {
+      if (e instanceof KeyboardEvent && e.key === "Escape" && open) {
         onClose();
       }
     };
@@ -58,12 +58,20 @@ export const TagDropdown: FC<TagDropdownProps> = ({
   }, [open, onClose]);
 
   return (
-    <>
+    <Box>
       <Popper
         open={open}
         anchorEl={anchorEl}
         placement="bottom-start"
         className={styles.popper}
+        modifiers={[
+          {
+            name: "offset",
+            options: {
+              offset: [0, 8],
+            },
+          },
+        ]}
       >
         <ClickAwayListener onClickAway={onClose}>
           <Paper ref={scrollRef} className={styles.dropdown}>
@@ -99,6 +107,6 @@ export const TagDropdown: FC<TagDropdownProps> = ({
           onSelect(value);
         }}
       />
-    </>
+    </Box>
   );
 };
