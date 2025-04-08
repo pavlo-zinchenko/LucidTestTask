@@ -1,4 +1,11 @@
-import { FC, KeyboardEvent, MouseEvent, useEffect, useRef, useState } from "react";
+import {
+  FC,
+  KeyboardEvent,
+  MouseEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Box, Typography } from "@mui/material";
 import styles from "./FormulaInput.module.scss";
 import { useFormulaStore } from "@state/useFormulaStore";
@@ -6,6 +13,7 @@ import { AutocompleteList } from "@components/AutocompleteList";
 import { Suggestion } from "@hooks/useAutocomplete";
 import { evaluate } from "mathjs";
 import { TagDropdown } from "@components/TagDropdown";
+import { OPERATORS } from "./utils";
 
 interface FormulaInputProps {
   onCalculated: (val: string) => void;
@@ -19,6 +27,7 @@ export const FormulaInput: FC<FormulaInputProps> = ({ onCalculated }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [validTags, setValidTags] = useState<string[]>([]);
 
   useEffect(() => {
     calculateExpression();
@@ -41,8 +50,10 @@ export const FormulaInput: FC<FormulaInputProps> = ({ onCalculated }) => {
       }
     }
 
+    expr = expr.trim();
+
     try {
-      const result = evaluate(expr.trim());
+      const result = evaluate(expr);
       setError(null);
       onCalculated(result.toString());
     } catch (err) {
@@ -57,7 +68,19 @@ export const FormulaInput: FC<FormulaInputProps> = ({ onCalculated }) => {
         e.preventDefault();
 
         if (inputValue.trim()) {
-          if (!tokens.some(token => token.name === inputValue.trim() && token.type === "tag")) {
+          if (OPERATORS.includes(inputValue.trim())) {
+            addToken({
+              id: crypto.randomUUID(),
+              name: inputValue.trim(),
+              type: "operator",
+            });
+          } else if (!isNaN(Number(inputValue.trim()))) {
+            addToken({
+              id: crypto.randomUUID(),
+              name: inputValue.trim(),
+              type: "number",
+            });
+          } else if (validTags.includes(inputValue.trim())) {
             addToken({
               id: crypto.randomUUID(),
               name: inputValue.trim(),
@@ -68,9 +91,12 @@ export const FormulaInput: FC<FormulaInputProps> = ({ onCalculated }) => {
         }
       }
 
-      if (e.key === "Backspace" && inputValue === "") {
+      if (e.key === "Backspace") {
         e.preventDefault();
-        if (tokens.length > 0) {
+
+        if (inputValue) {
+          setInputValue(inputValue.slice(0, -1));
+        } else if (tokens.length > 0) {
           const lastToken = tokens[tokens.length - 1];
           removeToken(lastToken.id);
         }
@@ -79,18 +105,21 @@ export const FormulaInput: FC<FormulaInputProps> = ({ onCalculated }) => {
   };
 
   const handleAutocompleteSelect = (item: Suggestion) => {
-    if (!tokens.some(token => token.name === item.name && token.type === "tag")) {
+    if (
+      !tokens.some((token) => token.name === item.name && token.type === "tag")
+    ) {
       addToken({
         id: item.id,
         name: item.name,
         type: "tag",
       });
+      setValidTags((prev) => [...prev, item.name]);
     }
     setInputValue("");
   };
 
   const handleTagSelect = (tag: string) => {
-    if (!tokens.some(token => token.name === tag && token.type === "tag")) {
+    if (!tokens.some((token) => token.name === tag && token.type === "tag")) {
       addToken({
         id: crypto.randomUUID(),
         name: tag,
@@ -111,7 +140,11 @@ export const FormulaInput: FC<FormulaInputProps> = ({ onCalculated }) => {
         =
         {tokens.map((token) =>
           token.type === "tag" ? (
-            <Box key={token.id} className={styles.token} onClick={(e) => handleTagClick(e)}>
+            <Box
+              key={token.id}
+              className={styles.token}
+              onClick={(e) => handleTagClick(e)}
+            >
               <span>{token.name}</span>
               <TagDropdown
                 anchorEl={anchorEl}
